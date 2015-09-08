@@ -1,4 +1,4 @@
-// Daniel 
+//Daniel
 
 //Index || Handles
 var canvas, ctx;
@@ -11,6 +11,8 @@ var STAGE = [];
 
 var enemyTypes;
 
+var backgrounds = 0;
+
 window.addEventListener(
 	"load",
 	function () {
@@ -20,7 +22,17 @@ window.addEventListener(
 		ctx = canvas.getContext("2d");
 		
 		
-		
+		//sprites
+        var bgimg = new Image();
+        bgimg.src ="example_image.png";
+        //ctx.drawImage(bgimg,10,10);
+        
+        /*
+        var c=document.getElementById("myCanvas");
+        var ctx=c.getContext("2d");
+        var img=document.getElementById("scream");
+        ctx.drawImage(img,10,10);
+        */
 		
 		//Resize event
 		(window.onresize = function() {
@@ -42,21 +54,14 @@ window.addEventListener(
 			new Player(
 				{
 					cFrame:{position:V2(200, 200), rotation:5},
-					size:V2(100,100),
+					size:V2(20,20),
 					Anchored:false
 				}
 			)
 		)
         
-        STAGE.push(
-            new enemyTypes[0](
-				{
-					cFrame:{position:V2(10, 10), rotation:0},
-					size:V2(100, 100)
-				}
-            )
-        )
         
+        //ctx.fillStyle = "#FFF";
 		//updates = 0;
 		//startingTime = Date().getTime();
         
@@ -66,6 +71,9 @@ window.addEventListener(
 		window.setInterval(
 			function () {
 				
+                
+				ctx.setTransform(1, 0, 0, 1, 0, 0);
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				
 				for (index1 in STAGE) {
 					
@@ -78,14 +86,34 @@ window.addEventListener(
 						}
 					}
 				}
-				
+                //Spawning\\
+                if(STAGE.length < 10){
+                    STAGE.push(
+                        new enemyTypes[Math.floor(Math.random() * enemyTypes.length)]
+                        (
+                            {
+                                cFrame:{position:V2(Math.random() * canvas.width + canvas.width, Math.random() * canvas.height), rotation:0},
+                                size:V2(10, 10)
+                            }
+                        )
+                    )
+                }
+                if(backgrounds * bgimg.width <= 2400){
+                    STAGE.push(
+                        new Background(
+                            {
+                                cFrame:{position:V2(bgimg.width * backgrounds, 0), rotation:0},
+                                size:V2(10, 10)
+                            }
+                        )
+                    )
+                    backgrounds++;
+                }
+                
                 INPUT_CLICK = MOUSE_CLICK = {};
 			},
 			0 //<-- UpdateSpeed:	0 == browser snelheid
 		)
-		
-		
-		
 		
 		// {{EVENTS}} \\
 		
@@ -156,6 +184,13 @@ function Entity ( properties ) {
 	
 	if (!properties.canCollide);
 		//properties.size = V2(0, 0);
+    
+    this.destroy = function(obj) {
+        var index = STAGE.indexOf(obj);
+		STAGE.splice(index, 1);
+        
+        if(obj.constructor == Background) backgrounds--;
+    }
 }
 
 
