@@ -1,5 +1,3 @@
-//Daniel
-
 function Background(properties, childs) {
     
 	//Index\\
@@ -9,11 +7,15 @@ function Background(properties, childs) {
 	this.functions = {};
 	var self = this;
     
-    
     Entity(this.prop);
-	Physics(this.prop, this.update);
+	Physics(this.prop, this.update, this.functions);
     
-    //self.prop.
+    this.prop.Floating = true;
+    this.prop.Anchored = true;
+    
+    //this.prop.friction = 0;
+    //this.prop.velocity.x -= 0;
+    //this.prop.canCollide = false;
     
 	//Functions\\
 	this.functions["test"] =  function(){console.log("test3")};
@@ -22,15 +24,12 @@ function Background(properties, childs) {
 	this.update.push(
 		function() {
             
-            ctx.resetTransform();
-            
             ctx.setTransform(1, 0, 0, 1, self.prop.cFrame.position.x, self.prop.cFrame.position.y);
             var bgimg = new Image();
             bgimg.src ="example_image.png";
             ctx.drawImage(bgimg,0,0);
             
-            properties.velocity.x -= 0.05;
-            if (self.prop.cFrame.position.x + bgimg.width < 0) destroy(self); //left
+            if (self.prop.cFrame.position.x + bgimg.width < 0) self.prop.cFrame.position.x = bgimg.width * backgrounds - bgimg.width; //left
 		}
 	);
 	

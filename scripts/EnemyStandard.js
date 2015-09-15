@@ -7,10 +7,9 @@ function EnemyStandard(properties, childs) {
 	this.functions = {};
 	var self = this;
     
-    
-    	this.childs.push(Entity(this.prop));
-	this.childs.push(Physics(this.prop, this.update));
-	this.childs.push(Humanoid(this.prop, this.functions));
+	Entity(this.prop);
+	Physics(this.prop, this.update, this.functions);
+	Humanoid(this.prop, this.functions);
     
     
 	//Functions\\
@@ -24,11 +23,14 @@ function EnemyStandard(properties, childs) {
 		function() {
 			
 			ctx.setTransform(1, 0, 0, 1, self.prop.cFrame.position.x, self.prop.cFrame.position.y);
+            ctx.fillStyle = "#01DF74";
 			ctx.fillRect(0, 0, self.prop.size.x, self.prop.size.y);
             
-            
+            if(player.prop.cFrame.position.x < self.prop.cFrame.position.x) self.prop.velocity.x -= self.prop.speed;
+            else self.prop.velocity.x += self.prop.speed;
             
             if (self.prop.cFrame.position.x < 0) destroy(self); //left
+            
 		}
 	);
 	

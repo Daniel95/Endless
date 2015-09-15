@@ -1,4 +1,4 @@
-function EnemyJumper(properties, childs) {
+function EnemySprinter(properties, childs) {
     
 	//Index\\
 	this.prop = properties //Prop == properties
