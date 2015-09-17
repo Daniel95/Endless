@@ -1,3 +1,20 @@
+//BaseClass
+
+function UI(properties) {
+	//Extends:
+	GameObject(this, properties);
+	
+    var self = this;
+    
+	this.update.push(function(){
+		
+        ctx.setTransform(1, 0, 0, 1, self.cFrame.position.x, self.cFrame.position.y);
+		ctx.fillRect(self.size.x, self.size.y, player.hJumpTimer, self.size.y);
+        
+	})
+}
+
+/*
 function UI(properties, childs) {
     
 	//Index\\
@@ -29,3 +46,4 @@ function UI(properties, childs) {
 	
 	
 }
+*/

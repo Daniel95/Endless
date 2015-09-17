@@ -1,163 +1,102 @@
-function Physics (properties, update, functions) {
-	
-    properties.collidingEntities = [];
-    
-    properties.speed = 0.1;
-    properties.grounded = false;
-    properties.gravity = 0;
-    properties.gravityValue = 0.001;
-    
-	properties.velocity = V2(0, 0);
-	properties.friction = 0.1;
-	
-	//properties.Anchored = properties.Anchored != undefined ? properties.Anchored : true;
-    //properties.Floating = properties.Floating != undefined ? properties.Floating : true;
-    
-    properties.Anchored = false;
-    properties.Floating = false;
-    
-    properties.isPlayer = false;
-    
-	update.push(function() {
-		
-		//console.log("test2");
-		properties.cFrame.position.x += properties.velocity.x;
-		properties.cFrame.position.y += properties.velocity.y;
-		
-		
-		properties.velocity.x -= properties.velocity.x * properties.friction;
-		properties.velocity.y -= properties.velocity.y * properties.friction;
-		
-		//console.log(properties.Anchored);
-        
-        //console.log(properties);
-        //console.log(properties.collidingEntities);
-        /*
-        if (!properties.Anchored) {
-			for (childIndex in STAGE) {
-				if (STAGE[childIndex].prop != properties) {
-                                        
-					//console.log ("test", Math.random())
+//SubClass
 
+function Physics(parent) {
 
-					//console.log(STAGE[childIndex]);
-					if (
-						distance(
-							properties.cFrame.position,
-							STAGE[childIndex].cFrame.position ) <
-						distance( 
-							V2(0,0),
-							properties.size ) +
-						distance( 
-							V2(0,0), 
-							V2(50, 50) 
-						)
-					)
-						console.log("Near obj");
-				}
-			}
-		}
-        */
-        
-        //demo code
-        if (properties.cFrame.position.y >= 700) {
-            properties.cFrame.position.y = 700;
-            properties.grounded = true;
-            properties.gravity = 0;
-        }
-        else {
-            //properties.gravity += properties.gravityValue;
-            if(!properties.Floating) properties.velocity.y += properties.gravity += properties.gravityValue;
-            properties.grounded = false;
-        } 
-        
-        properties.velocity.x -= 0.05;
-        
-        
-        
-        
-        //Collision
-		if (!properties.Anchored) {
-			for (childIndex in STAGE) {
-                var otherEntity = STAGE[childIndex];
-				if (otherEntity.prop != properties){
-                    
-                     //DIT WERKT<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                    if(properties.cFrame.position.x + properties.size.x * 0.5 > otherEntity.prop.cFrame.position.x - otherEntity.prop.size.x * 0.5 &&
-                        properties.cFrame.position.x - properties.size.x * 0.5 < otherEntity.prop.cFrame.position.x + otherEntity.prop.size.x * 0.5 &&
-                        properties.cFrame.position.y + properties.size.y * 0.5 > otherEntity.prop.cFrame.position.y - otherEntity.prop.size.y * 0.5 &&
-                        properties.cFrame.position.y - properties.size.y * 0.5 < otherEntity.prop.cFrame.position.y + otherEntity.prop.size.y * 0.5) onCollision(otherEntity);
-                        
-                    
-                    //DIT WERKT NIET, er is constant collision<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                    if (CheckCollision(otherEntity)) onCollision(otherEntity);
-                    
-                    
-                    /*
-                    if (!AlreadyColliding(otherEntity) && CheckCollision(otherEntity)) onCollisionEnter(otherEntity);
-                    else if (CheckCollision(otherEntity)) onCollision(otherEntity);
-                    else if (AlreadyColliding(otherEntity)) onCollisionExit(otherEntity);
-                    //console.log(properties.AlreadyColliding(otherEntity));
-                    */
-				}
-			}
-		}  
-	})
+	if(parent.velocity==undefined) parent.velocity = V2(0, 0);
+	if(parent.friction==undefined) parent.friction = 0.1;
+	if(parent.canCollide==undefined) parent.canCollide = true;
+	if(parent.collision==undefined) parent.collision = true;
+	if(parent.gravity==undefined) parent.gravity = 1;
+    if(parent.gravityValue==undefined) parent.gravityValue = 1;
+    if(parent.grounded==undefined) parent.grounded = false;
+    if(parent.speed==undefined) parent.speed = 0.35;
+	parent.pushDirection = V2(0, 0);
     
     
-    //OnCollision
-    this.onCollisionEnter = function(otherEntity) {
-        properties.collidingEntities.push(otherEntity);
-        //console.log(otherEntity.constructor.name + " onCollisionEnter")
-    }
+	//if (!parent.anchored) parent.anchored = true;
+	
+	parent.collidingObjects = [];
     
-    this.onCollision = function(otherEntity) {
-        //console.log(otherEntity.constructor.name + " onCollision");
-         //console.log(otherEntity.constructor.name);
-        
-        
-        properties.grounded = true;
-        properties.gravity = 0;
-        
-        if(otherEntity.constructor.name == "Platform") {
-            //properties.grounded = true;
-            //properties.gravity = 0;
+    parent.update.unshift(function () {
+        parent.cFrame.position.x -= 0.5;
+        if (!parent.anchored) {
+			parent.pushDirection = V2(0, 0);
+			
+			parent.cFrame.position.x += parent.velocity.x;
+			parent.cFrame.position.y += parent.velocity.y;
+			
+			
+			parent.velocity.x -= parent.velocity.x * parent.friction;
+			parent.velocity.y -= parent.velocity.y * parent.friction;
+			
+			if (Math.abs(parent.velocity.x) < 0.05) parent.velocity.x = 0;
+			if (Math.abs(parent.velocity.y) < 0.05) parent.velocity.y = 0;
+			
+			//console.log(parent.velocity);
+			
+			parent.velocity.y += parent.gravity;
             
-            // IVP DE POS VERANDEREN VAN OBJECTEN DIE DE PLATFORM AANRAKEN VERANDERD HIJ DE POS VAN HET PLATFORM ZELF....<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            /*
-            if (otherEntity.prop.cFrame.position.y < properties.cFrame.position.y) properties.cFrame.position.y = otherEntity.prop.cFrame.position.y - otherEntity.prop.cFrame.size * 0.5;
-            else properties.cFrame.position.y = otherEntity.prop.cFrame.position.y + otherEntity.prop.cFrame.size * 0.5;
-            */
-        } 
-    }
-    
-    this.onCollisionExit = function(otherEntity) {
-        properties.collidingEntities.splice(properties.collidingEntities.indexOf(otherEntity), 1);
-        //console.log(otherEntity.constructor.name + " onCollisionExit")
-    }
-    
-    
-    //Collision Checks
-    this.CheckCollision = function(otherEntity) {
-        var result = false;
-        if(properties.cFrame.position.x + properties.size.x * 0.5 > otherEntity.prop.cFrame.position.x - otherEntity.prop.size.x * 0.5 &&
-            properties.cFrame.position.x - properties.size.x * 0.5 < otherEntity.prop.cFrame.position.x + otherEntity.prop.size.x * 0.5 &&
-            properties.cFrame.position.y + properties.size.y * 0.5 > otherEntity.prop.cFrame.position.y - otherEntity.prop.size.y * 0.5 &&
-            properties.cFrame.position.y - properties.size.y * 0.5 < otherEntity.prop.cFrame.position.y + otherEntity.prop.size.y * 0.5) result = true; 
-        return result;
-    }
-    
-    this.AlreadyColliding = function(otherEntity){
-        var result = false;
-        //for (i = properties.collidingEntities.length - 1; i >= 0; i--) {
-        for (childIndex in properties.collidingEntities) {
-            //if (properties.collidingEntities[i] == otherEntity) {
-            if (properties.collidingEntities[childIndex] == otherEntity) {
-				result = true;
-				break;
-            }
+			if (parent.collision) {
+				for (childIndex in STAGE) {
+					if (STAGE[childIndex] != parent) {
+						
+
+						parent.checkCollision( STAGE[childIndex] );
+					}
+				}
+			}
         }
-        return result;
-    }
-    
+    })
+	
+	parent.collideWith = function( obj ) {
+		if (obj.canCollide && !parent.anchored) {
+			
+			var direction = getAngleFromPos( this.cFrame.position, obj.cFrame.position );
+			
+			var corners = [
+				getAngleFromPos( V2(0,0), V2( obj.size.x, -obj.size.y) ), //0 Top		right
+				getAngleFromPos( V2(0,0), V2( obj.size.x,  obj.size.y) ), //1 bottom	right
+				getAngleFromPos( V2(0,0), V2(-obj.size.x,  obj.size.y) ), //2 bottom	left
+				getAngleFromPos( V2(0,0), V2(-obj.size.x, -obj.size.y) ), //3 top		left
+			]
+			
+			if ( direction >= corners[0] && direction <= corners[1] )
+				parent.pushDirection = V2(-1, 0);//Right
+			else if ( direction >= corners[1] && direction <= corners[2] )
+				parent.pushDirection = V2(0, -1);//Down
+			else if ( direction >= corners[2] && direction <= corners[3] )
+				parent.pushDirection = V2(1, 0);//Left
+			else
+				parent.pushDirection = V2( 0, 1);//Top
+			
+			if (parent.pushDirection.x!=0) {
+				parent.velocity.x -= (parent.velocity.x + parent.gravity) * parent.friction;
+				parent.cFrame.position.x = obj.cFrame.position.x + (obj.size.x/2 + parent.size.x/2) * parent.pushDirection.x;
+			}
+			if (parent.pushDirection.y!=0) {
+				parent.velocity.y -= (parent.velocity.y + parent.gravity) * parent.friction;
+				parent.cFrame.position.y = obj.cFrame.position.y + (obj.size.y/2 + parent.size.y/2) * parent.pushDirection.y;
+			}
+			
+			//console.log(corners, direction);
+		}
+	}
+	
+	parent.checkCollision = function( obj ) {
+		if(!obj.childs.physics || !obj.canCollide)return false;
+		
+		if (parent.cFrame.position.x + parent.size.x/2 > obj.cFrame.position.x - obj.size.x/2
+		&&	parent.cFrame.position.x - parent.size.x/2 < obj.cFrame.position.x + obj.size.x/2
+		&&	parent.cFrame.position.y + parent.size.y/2 > obj.cFrame.position.y - obj.size.y/2
+		&&	parent.cFrame.position.y - parent.size.y/2 < obj.cFrame.position.y + obj.size.y/2) {
+			
+			if (obj.collision)
+				obj.collideWith( parent );
+			parent.collideWith( obj );
+            
+			return true;
+		}// else parent.pushDirection = V2(0,0);
+		
+		return false;
+	}
 }

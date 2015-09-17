@@ -1,22 +1,24 @@
-function EnemyBase(properties, childs, update) {
+//BaseClass
+
+function EnemyBase(properties) {
+	//Extends:
+	GameObject(this, properties);
+    this.childs["physics"] = new Physics(this);
+	
+	var self = this
     
-	//Events\\
-    update.push(
-		function() {
-            
-            //properties.velocity.x -= 0.05;
-            
-            //console.log(player.prop.cFrame.x);
-		}
-	);
+    this.grounded = false;
 	/*
-    draw.push(
-		function() {
-            
-			ctx.setTransform(1, 0, 0, 1, self.prop.cFrame.position.x, self.prop.cFrame.position.y);
-			ctx.fillRect(0, 0, self.prop.size.x, self.prop.size.y);
-            console.log("draw");
-		}
-	);
+	this.update.push(function(){
+        if(self.pushDirection.y == -1){
+            if(player.cFrame.position.x < self.cFrame.position.x) self.velocity -= parent.speed;
+            else self.velocity += parent.speed;
+            grounded = true;
+        } else grounded = false;
+        
+		if (self.cFrame.position.x + self.size.x/2 < 0
+		||	self.cFrame.position.y + self.size.y/2 < 0)
+			self.destroy();
+	})
     */
 }
