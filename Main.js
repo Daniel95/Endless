@@ -12,6 +12,8 @@ var platforms = [];
 var player;
 var obstacle;
 var mousePos = V2(0,0);
+var FRAMECOUNT = 0;
+var FRAMESKIP = 2;
 
 window.addEventListener(
 	"load",
@@ -42,9 +44,7 @@ window.addEventListener(
 		//Values\\
 		enemyTypes = [
 			EnemyStandard,
-            //EnemyTank,
-            //EnemySprinter,
-            //EnemyJumper
+            EnemyJumper
 		];
         
 		
@@ -66,9 +66,10 @@ window.addEventListener(
 			),
 			obstacle = new Obstacle(
 				{
-					size:V2(500, 100),
-                    cFrame:{position:V2(0 , canvas.height/2), rotation:5},
-					anchored:true
+					size:V2(600, 100),
+                    cFrame:{position:V2(300 , canvas.height/2), rotation:5},
+					anchored:true,
+                    color: "#2a2a2a"
 				}
 			)
 		)
@@ -80,7 +81,7 @@ window.addEventListener(
 			window.requestAnimationFrame(draw);
 			
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+			ctx.fillStyle = "rgba(200, 220, 255, 0.7)";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.fillStyle = "#000";
 			for (index1 in STAGE) {
@@ -90,14 +91,26 @@ window.addEventListener(
 					
 					for (index2 in STAGE[index1].update) {
 						
-						STAGE[index1].update[index2]();
+						if (STAGE[index1].update[index2])
+							STAGE[index1].update[index2]();
 					}
 				}
 			}
 			
-            Spawner();
+            SpawnWorld();
             
 			INPUT_CLICK = MOUSE_CLICK = {};
+			
+			//stress test
+			if (!(i++%60))
+                STAGE.push(//spawn enemy
+                    new enemyTypes[Math.floor(Math.random() * enemyTypes.length)]({
+                        cFrame:{position:V2(canvas.width+100, canvasHeight/2), rotation:0},
+                        size:V2(20, 35),
+                    })
+                );
+			
+			FRAMECOUNT++;
 		})();
 		
 		
@@ -203,7 +216,7 @@ function getAngleFromPos( pos1, pos2 ) {
 
 
 
-function GameObject ( parent, properties ) {
+function GameObject ( parent, properties, childs ) {
 	this.parent = parent;
 	
 	//Index\\
@@ -211,6 +224,7 @@ function GameObject ( parent, properties ) {
 	parent.childs = {};
 	for (i in properties) parent[i] = properties[i];
 	
+	self = this
 	
 	//Values\\
 	if (!parent.cFrame) parent.cFrame = {
@@ -235,43 +249,65 @@ function GameObject ( parent, properties ) {
 }
 
 
-function Spawner(){
-    while(platforms.length < 5) {
+function SpawnWorld(){
+    if(platforms.length < 6) {
         var platWidthRand = 100 + Math.random() * 1000;//platform width
-        var platGapRand = 20 + Math.random() * 130;//gap width
-        var platPos = platforms[platforms.length - 1].size.x / 2 + platforms[platforms.length - 1].cFrame.position.x + platGapRand + platWidthRand /2;//platform cFrame.posistion.x
-        //var platPos = 0;
+        var platGapRand = 25 + Math.random() * 130;//gap width
+        var platPosX = platforms[platforms.length - 1].size.x / 2 + platforms[platforms.length - 1].cFrame.position.x + platGapRand + platWidthRand /2;
+        var platPosY = canvasHeight / 1.5 - canvasHeight /10 + canvasHeight /5 * Math.random();
+        
+        
+        var value = Math.random() * 0xFF | 0;
+        var grayscale = (value << 16) | (value << 8) | value;
+        var color = '#' + grayscale.toString(16);
+        
         STAGE.push(
             obstacle = new Obstacle(
                 {
                     size:V2(platWidthRand, 100),
-                    cFrame:{position:V2(platPos, canvasHeight /2 - canvasHeight /8 + canvasHeight /4 * Math.random() ), rotation:5},
-                    anchored:true
+                    cFrame:{position:V2(platPosX, platPosY), rotation:5},
+                    anchored:true,
+                    isPlatform: true,
+                    color: color
                 }
             )
             
         )
         platforms.push(obstacle);
-        
         //Enemies & Pickups Spawn on platforms
-        for(i = 0; i < Math.random() * 25; i++){
-            console.log("yooy");
-            if(Math.random() < 0.5){
-                STAGE.push(
+        for(s = 0; s < Math.random() * 30; s++){
+            var random = Math.random();
+            if(random < 0.9){
+                STAGE.push(//spawn enemy
                     new enemyTypes[Math.floor(Math.random() * enemyTypes.length)]({
-                        cFrame:{position:V2(platPos - platWidthRand / 2 + platWidthRand * Math.random(), 0), rotation:0},
+                        cFrame:{position:V2(platPosX - platWidthRand / 2 + platWidthRand * Math.random(), platPosY - 50), rotation:0},
                         size:V2(20, 35),
-                        collideWith: false
                     })
                 )
+            } if(random < 0.95) {//spawn pickup
+                STAGE.push(
+                    new Obstacle(
+                    {
+                        cFrame:{position:V2(platPosX - platWidthRand / 2 + platWidthRand * Math.random(), platPosY - 70), rotation:0},
+                        size:V2(25, 15),
+                        canCollide: false,
+                        collision: true,
+                        isPickup:true
+                    })
+                )  
             } else {
                 STAGE.push(
-                    new enemyTypes[Math.floor(Math.random() * enemyTypes.length)]({
-                        cFrame:{position:V2(platPos - platWidthRand / 2 + platWidthRand * Math.random(), 0), rotation:0},
-                        size:V2(20, 35),
-                        collideWith: false
+                    new Bullet(//spawn meteorite
+                    {
+                        size:V2(30, 30),
+                        cFrame:{position:V2(canvasWidth/2 * Math.random() + canvasWidth/2, 0 ), rotation:5, color:"#800517"},
+                        velocity:V2((Math.random()-.5)*10,(Math.random()-.5)*10),
+                        friction: 0.005,
+                        gravity: 0,
+                        color: "#A9000E",
+                        toExplode: true
                     })
-                )   
+                )
             }
         }
     }    

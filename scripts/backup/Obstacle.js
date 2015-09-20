@@ -1,16 +1,19 @@
 //BaseClass
 
-function Obstacle(properties, childs) {
+function Obstacle(properties) {
 	//Extends:
-	GameObject(this, properties, childs);
+	GameObject(this, properties);
 	this.childs["physics"] = new Physics(this);
 	
 	var self = this
     
+    var color = '#'+Math.random().toString(16).substr(-6);
+    
+    if(self.doesDmg!=true) self.doesDmg = false;
+    if(self.isPlatform==undefined) self.isPlatform = false;
     if(self.isPickup==undefined) self.isPickup = false;
-    if(self.color==undefined)  self.color = '#'+Math.random().toString(16).substr(-6);
 
-   // console.log("spawned Obstacle doesDmg = " + self.doesDmg);
+    //console.log("spawned Obstacle doesDmg = " + self.doesDmg);
     
 	this.update.push(function(){
 		if (self.cFrame.position.x + self.size.x/2 < 0
@@ -22,7 +25,7 @@ function Obstacle(properties, childs) {
         }
 		
 		ctx.setTransform(1, 0, 0, 1, self.cFrame.position.x, self.cFrame.position.y);
-        ctx.fillStyle = self.color;
+        ctx.fillStyle = color;
 		ctx.fillRect(-self.size.x / 2, -self.size.y / 2, self.size.x, self.size.y);
 	})
 }

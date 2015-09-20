@@ -9,11 +9,12 @@ function Player(properties) {
 	var self = this
 	
     this.hJumpTimer = 70;
-    
-    
-    self.childs.tool.selectWeapon( 0 );
+	
+    //self.childs.tool.shotgun();
+    //self.childs.tool.weaponArray[self.childs.tool.weaponArray.length * Math.random()];
+    console.log(self.childs.tool.weaponArray.length);
 	this.update.push(function(){
-        
+		
 		ctx.setTransform(1, 0, 0, 1, self.cFrame.position.x, self.cFrame.position.y);
 		ctx.fillRect(-self.size.x / 2, -self.size.y / 2, self.size.x, self.size.y);
 		
@@ -23,12 +24,8 @@ function Player(properties) {
         
         if(self.pushDirection.y == -1){
             if(self.hJumpTimer < canvasWidth - 100) self.hJumpTimer += 0.36;
-            //if (INPUT["87"]) for(f = 0; f < 8; f++) if(self.hJumpTimer > 0) self.velocity.y -= 3, self.hJumpTimer -= 1;//Normal Jump
-            if (INPUT["87"]){
-                if(self.hJumpTimer > 8) self.hJumpTimer -= 8;
-                self.velocity.y -= 24;//Normal Jump
-            }
-        } else if(INPUT["87"] && self.hJumpTimer > 0) self.velocity.y -= 1.55, self.hJumpTimer -= 0.3;//Hover Jump
+            if (INPUT["87"]) for(f = 0; f < 8; f++) if(self.hJumpTimer > 0) self.velocity.y -= 3, self.hJumpTimer -= 1;//Normal Jump
+        } else if(INPUT["87"] && self.hJumpTimer > 0) self.velocity.y -= 1.40, self.hJumpTimer -= 0.2;//Hover Jump
 		
 		
         self.childs.tool.fireTimer -= 6;
@@ -44,9 +41,4 @@ function Player(properties) {
         
         
 	})
-	
-	this.onCollisionEnter = function( obj ) {
-        if(obj.isPickup) self.childs.tool.selectWeapon(Math.floor(self.childs.tool.weaponArray.length * Math.random())), obj.destroy();
-        else if(obj.constructor == EnemyStandard || obj.constructor == EnemyJumper && self.cFrame.position.y > obj.cFrame.position.y - obj.size.y / 3) self.cFrame.position.x = 100, self.cFrame.position.y = 0;
-	}
 }

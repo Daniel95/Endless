@@ -4,12 +4,10 @@ function EnemyBase(parent) {
 	//Extends:
 	//GameObject(this, properties);
     //parent.childs["physics"] = new Physics(this);
-	parent.childs["humanoid"] = new Humanoid(parent);
 	
     parent.jumpSpeed = 0;
     parent.color = "";
     parent.standStill = false;
-    parent.canCollide = false;
     
     parent.isEnemy = true;
     
@@ -27,24 +25,17 @@ function EnemyBase(parent) {
     
     parent.StandardMovement = function(){
         if(parent.cFrame.position.x - parent.size.x/2 < canvasWidth){
-            if(player.cFrame.position.x < parent.cFrame.position.x) parent.velocity.x -= parent.speed / (parent.grounded + 1) ;
-            else parent.velocity.x += parent.speed / (parent.grounded + 1);
-            if(parent.pushDirection.y == -1) parent.grounded = 0;
+            if(player.cFrame.position.x < parent.cFrame.position.x) parent.velocity.x -= parent.speed / 2;
+            else parent.velocity.x += parent.speed / 2;
+            if(parent.pushDirection.y == -1) parent.grounded = true;
             else {
-                if(parent.grounded == 0){//jump from platform
+                if(parent.grounded == true){
                     parent.jumpSpeed = 0;
                     if(player.cFrame.position.y < parent.cFrame.position.y) parent.jumpSpeed = (parent.cFrame.position.y - player.cFrame.position.y) / 13;
                     parent.velocity.y -= parent.speed * 50 + parent.jumpSpeed + Math.random() * 15;
                 }
-                parent.grounded = 1;
+                parent.grounded = false;
             }
         }
     }
-	
-	parent.onCollisionEnter = function( obj ) {
-        if(obj.constructor == Obstacle)
-            ;//console.log(obj.doesDmg);
-		if (obj.constructor == Player)
-			parent.kill();
-	}
 }
