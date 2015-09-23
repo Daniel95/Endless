@@ -15,7 +15,7 @@ function Physics(parent) {
 	parent.collidingObject = undefined;
     
     parent.update.unshift(function () {
-        parent.cFrame.position.x -= 1.4 + UIkills / 45;
+        parent.cFrame.position.x -= currentWorld.worldSpeed;
         if (!parent.anchored) {
 			
 			parent.cFrame.position.x += parent.velocity.x;

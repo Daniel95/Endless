@@ -9,13 +9,18 @@ function World(){
 	platforms = [];
 	player;
 	obstacle;
+	
+	this.worldSpeed = 10;
     
+	var self = this;
     
     startGame();
     
     this.update = function(){
         SpawnWorld1();
         spawnEnemiesRight();
+		
+		self.worldSpeed = 1.4 + (UIkills/10 >= 3 ? 3 : UIkills/10);
     }
     
     
@@ -51,7 +56,7 @@ function World(){
     
     
     function SpawnWorld1(){
-        platformWidth -= 1.4 + UIkills / 50;
+        platformWidth -= currentWorld.worldSpeed;
 
         while(platformWidth <= canvas.width) {//platforms.length < 6) {
             var platWidthRand = 100 + Math.random() * 1000;//platform width
@@ -144,7 +149,7 @@ function World(){
         }
             player = new Player(
                 {
-                    cFrame:{position:V2(100, 0), rotation:5},
+                    cFrame:{position:V2(500, 0), rotation:5},
                     size:V2(20,35),
                     anchored:false,
                 }
@@ -161,7 +166,7 @@ function World(){
         platformWidth = 0;
 		player = new Player(
                 {
-                    cFrame:{position:V2(100, 0), rotation:5},
+                    cFrame:{position:V2(500, 0), rotation:5},
                     size:V2(20,35),
                     anchored:false,
                 }

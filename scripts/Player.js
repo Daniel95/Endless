@@ -34,7 +34,7 @@ function Player(properties) {
                 self.velocity.y -= 24;//Normal Jump
             }
         } else if((INPUT["87"] || INPUT["38"]) && self.hJumpTimer > 0){
-            self.velocity.y -= 1.55, self.hJumpTimer -= 0.35;//Hover Jump
+            self.velocity.y -= 1.55, self.hJumpTimer -= 1;//Hover Jump
             if(self.hJumpTimer < 180) var BoosterSize = self.hJumpTimer / 10;
             else BoosterSize = 18;
             self.particles(BoosterSize,3,7.5,true,10,false,BoosterSize + 4,0,40,false,"#ff0000");
@@ -46,7 +46,7 @@ function Player(properties) {
 		if (MOUSE["mousedown"] && self.childs.tool != undefined) self.childs.tool.fire();
         
         //stay in screen
-        if (self.cFrame.position.x - self.size.x/2 < 0) self.cFrame.position.x = 0 + self.size.x/2; //left
+        if (self.cFrame.position.x - self.size.x/2 < 0) self.kill();//self.cFrame.position.x = 0 + self.size.x/2; //left
         else if (self.cFrame.position.x + self.size.x/2 > canvasWidth) self.cFrame.position.x = canvasWidth - self.size.x; //right
         else if (self.cFrame.position.y - self.size.y/2 > canvasHeight) self.gravity = 1, self.kill(); //down
         
