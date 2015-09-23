@@ -11,14 +11,11 @@ function Physics(parent) {
     if(parent.grounded==undefined) parent.grounded = false;
     if(parent.speed==undefined) parent.speed = 0.5;
 	parent.pushDirection = V2(0, 0);
-    
-    
-	//if (!parent.anchored) parent.anchored = true;
 	
 	parent.collidingObject = undefined;
     
     parent.update.unshift(function () {
-        parent.cFrame.position.x -= 1.4;
+        parent.cFrame.position.x -= 1.4 + UIkills / 45;
         if (!parent.anchored) {
 			
 			parent.cFrame.position.x += parent.velocity.x;
@@ -35,6 +32,11 @@ function Physics(parent) {
 			
 			parent.velocity.y += parent.gravity;
             parent.gravity += parent.gravityIncrement;
+			
+			if (parent.collidingObject != undefined && !parent.checkCollision( parent.collidingObject, false )) {
+				if (parent.onCollisionExit != undefined) parent.onCollisionExit( parent.collidingObject );
+				parent.collidingObject = undefined;
+			}
             
 			if (!(FRAMECOUNT % FRAMESKIP)) {
 				parent.pushDirection = V2(0, 0);
@@ -43,7 +45,7 @@ function Physics(parent) {
 						if (STAGE[childIndex] != parent) {
 
 							if (distance(parent.cFrame.position, STAGE[childIndex].cFrame.position));
-							parent.checkCollision( STAGE[childIndex] );
+							parent.checkCollision( STAGE[childIndex], true );
 						}
 					}
 				}
@@ -77,39 +79,38 @@ function Physics(parent) {
 			}
 			
 			if (parent.pushDirection.x!=0) {
-				parent.velocity.x = parent.gravity;//(parent.velocity.x + parent.gravity) * parent.friction;
+				parent.velocity.x = parent.velocity.x * parent.friction;//parent.gravity;//(parent.velocity.x + parent.gravity) * parent.friction;
 				parent.cFrame.position.x = obj.cFrame.position.x + (obj.size.x/2 + parent.size.x/2) * parent.pushDirection.x;
 			}
 			if (parent.pushDirection.y!=0) {
-				parent.velocity.y = parent.gravity;//(parent.velocity.y + parent.gravity) * parent.friction;
+				parent.velocity.y = parent.gravity;//parent.velocity.x * parent.friction;//parent.gravity;//(parent.velocity.y + parent.gravity) * parent.friction;
 				parent.cFrame.position.y = obj.cFrame.position.y + (obj.size.y/2 + parent.size.y/2) * parent.pushDirection.y;
 			}
 			
 			parent.collidingObject = obj;
 			
-			//console.log(corners, direction);
+			return parent.pushDirection;
 		}
 	}
 	
-	parent.checkCollision = function( obj ) {
+	parent.checkCollision = function( obj, updateCollision ) {
 		if((!obj.childs.physics || !obj.canCollide) || (parent.ignoreObjects && parent.ignoreObjects.indexOf( obj.constructor ) != -1)) return false;
-		
-		if (parent.constructor == Player && obj.constructor == Bullet)
-			console.log(parent.ignoreObjects.indexOf( obj.constructor ) >= 0)
 		
 		if (parent.cFrame.position.x + parent.size.x/2 > obj.cFrame.position.x - obj.size.x/2
 		&&	parent.cFrame.position.x - parent.size.x/2 < obj.cFrame.position.x + obj.size.x/2
 		&&	parent.cFrame.position.y + parent.size.y/2 > obj.cFrame.position.y - obj.size.y/2
 		&&	parent.cFrame.position.y - parent.size.y/2 < obj.cFrame.position.y + obj.size.y/2) {
 			
-			if (obj.collision)
-				obj.collideWith( parent );
-			parent.collideWith( obj );
-			
-			if (obj.onCollisionEnter != undefined)
-				obj.onCollisionEnter( parent );
-			if (parent.onCollisionEnter != undefined)
-				parent.onCollisionEnter( obj );
+			if (updateCollision) {
+				if (obj.collision)
+					obj.collideWith( parent );
+				parent.collideWith( obj );
+
+				if (obj.onCollisionEnter != undefined && !(obj.ignoreObjects != undefined && obj.ignoreObjects.indexOf( parent.constructor ) != -1))
+					obj.onCollisionEnter( parent );
+				if (parent.onCollisionEnter != undefined) //&& !(obj.ignoreObjects != undefined && obj.ignoreObjects.indexOf( parent.constructor ) != -1))
+					parent.onCollisionEnter( obj );
+			}
             
 			return true;
 		}// else parent.pushDirection = V2(0,0);

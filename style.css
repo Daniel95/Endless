@@ -3,6 +3,11 @@
 	padding: 0;
 }
 canvas {
-	position: fixed;
+	/*position: fixed;*/
+    position: absolute;
+    z-index: 0;
 	background-color: white;/*aliceblue;*/
+}
+#UItext {
+    position:absolute;
 }

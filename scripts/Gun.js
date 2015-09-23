@@ -5,19 +5,17 @@ function Gun(parent, thiserties) {
 	//Extends:
 	GameObject(this, thiserties);
 	
-	parent.ignoreObjects = [Bullet]
-	
     this.targetPosition = V2(0,0);
     
-    this.ammo = Infinity;
-    this.fireTimer = this.fireRate = this.spray = this.shots = this.bSize = this.damage = 0;
+    this.fireTimer = this.fireRate = this.spray = this.shots = this.bSize = this.damage = this.gravity = this.ammo = this.startDist = 0;
+    
+    this.ignoreObjects = [Obstacle, Bullet];
     
     this.weaponArray = [];
     
+    this.weaponNames = [];
+    
 	this.fire = function() {
-		
-		//dit is een test line, het spawnt een doosje
-		//STAGE.push(new Obstacle({cFrame:{position:V2(canvas.width/2,200),rotation:0},size:V2(4,4),gravity:0.1,collision:false,canCollide:false,velocity:V2((Math.random()-.5)*10,(Math.random()-.5)*10),friction:0.001}));
         
         if(this.fireTimer < 0 && this.ammo > 0) {
             this.fireTimer = this.fireRate;
@@ -29,62 +27,48 @@ function Gun(parent, thiserties) {
             
             this.movePos = V2(0,0);
             
-            var explodes = false;
-            if(this.damage > 100) explodes = true;
-            
-            if(angle < -90 || angle > 90) var recoil = this.spray;
-            else var recoil = -this.spray;
+            //if(angle < -90 || angle > 90) var recoil = this.spray;
+           // else var recoil = -this.spray;
             
             for(b = 0; b < this.shots; b++){
-                var rotation = angle + recoil * Math.random() - recoil / 4;
+                var randomSpeed = Math.random() * 6 + 10;
+                var rotation = angle + (Math.random()-.5) * this.spray;
                 var radian = rotation * Math.PI / 180;
                 this.movePos.x = Math.cos(radian);
                 this.movePos.y = Math.sin(radian);
             
-                /*
-                STAGE.push(
-                    new Obstacle({
-						cFrame: {
-							position: V2(player.cFrame.position.x, player.cFrame.position.y),
-							rotation: angle + this.spray * Math.random() - this.spray * 0.5
-						},
-						size: V2(this.bSize, this.bSize),
-						gravity: 0.1,
-						collision: false,
-						canCollide: false,
-						velocity: V2((Math.random() - .5) * 10, (Math.random() - .5) * 10),
-						friction: 0.001
-					})
-                )
-                */
                 STAGE.push(
                     new Bullet(
                         {
-                            cFrame:{position:V2(parent.cFrame.position.x + (20 * this.movePos.x), parent.cFrame.position.y + (20 * this.movePos.y)), rotation:0},
+                            cFrame:{position:V2(parent.cFrame.position.x + (this.startDist * this.movePos.x), parent.cFrame.position.y + (this.startDist * this.movePos.y)), rotation:0},
                             size:V2(this.bSize, this.bSize),
-                            gravity:0.001,
+                            gravity: this.gravity,
                             gravityIncrement: 0,
                             collision:true,
                             canCollide:false,
                             friction: 0,
-                            velocity:V2(this.movePos.x * 10,this.movePos.y * 10),
+                            velocity:V2(this.movePos.x * randomSpeed,this.movePos.y * randomSpeed),
 							damage: this.damage,
-                            toExplode: explodes
+                            ignoreObjects: this.ignoreObjects,
 						}
                     )
                 )
             }
         }
+        UIammo = this.ammo;
 	}
 	
 	this.weaponArray = [
 		{//pistol 0
-			fireRate: 140,
-			spray: 20,
+			fireRate: 160,
+			spray: 8,
 			shots: 1,
 			bSize: 9,
 			ammo: 120,
 			damage: 100,
+            gravity: 0,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
 		},
         {//smg 1
             fireRate: 25,
@@ -93,14 +77,20 @@ function Gun(parent, thiserties) {
             bSize: 6,
 			ammo: 60,
 			damage: 35,
+            gravity: 0.01,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
         },
         {//assaultRife 2
-            fireRate: 60,
+            fireRate: 75,
             spray: 3,
             shots: 1,
             bSize: 8,
             ammo: 125,
             damage: 65,
+            gravity: 0,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
         },
 		{//shotgun 3
 			fireRate: 300,
@@ -109,6 +99,9 @@ function Gun(parent, thiserties) {
 			bSize: 7,
 			ammo: 37,
 			damage: 100,
+            gravity: 0.02,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
 		},
         {//assaultShotgun 4
 			fireRate: 120,
@@ -117,24 +110,55 @@ function Gun(parent, thiserties) {
             bSize: 8,
             ammo: 25,
             damage: 60,
+            gravity: 0.03,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
 		},
         {//OP gun 5
-			fireRate: 5,
+			fireRate: 45,
             spray: 360,
-            shots: 50,
-            bSize: 8,
-			ammo: 3,
+            shots: 5,
+            bSize: 10,
+			ammo: 25,
 			damage: 100,
+            gravity: 1,
+            startDist: 33,
+            ignoreObjects: [Obstacle, Bullet, Player],
 		},
         {//Rocket Launcher 6
-            fireRate: 400,
+            fireRate: 330,
             spray: 15,
             shots: 1,
-            bSize: 30,
-            ammo: 16,
-            damage: 150,
+            bSize: 25,
+            ammo: 18,
+            damage: 180,
+            gravity: 0.08,
+            startDist: 44,
+            ignoreObjects: [Bullet, Player],
+        },
+        {//Grenade Launcher 7
+            fireRate: 110,
+            spray: 30,
+            shots: 1,
+            bSize: 15,
+            ammo: 28,
+            damage: 140,
+            gravity: 0.06,
+            startDist: 44,
+            ignoreObjects: [Bullet, Player],
         }
 	];
+    
+    this.weaponNames = [
+        "Pistol",
+        "Smg",
+        "Assault Rifle",
+        "Shotgun",
+        "Automatic Shotgun",
+        "Blast",
+        "Rocket Launcher",
+        "Grenade Launcher"
+    ];
 	
 	this.selectWeapon = function( gunIndex ) {
 		
@@ -142,10 +166,9 @@ function Gun(parent, thiserties) {
 			
 			for (index in this.weaponArray[ gunIndex ])
 				this[index] = this.weaponArray[ gunIndex ][ index ];
+            
+            UIweaponName = this.weaponNames[gunIndex];
 		}
 	}
-	
-	this.selectWeapon( 0 );
-	//this.selectWeapon( "pistol" );
 }
 

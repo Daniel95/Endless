@@ -2,7 +2,7 @@ function Humanoid (parent) {
 	
 	if(parent.health==undefined) parent.health = 100;
 	if(parent.walkspeed==undefined) parent.walkspeed = 16;
-	
+    
 	parent.kill = function() {
 		
 		STAGE.push(
@@ -20,24 +20,13 @@ function Humanoid (parent) {
                 color: "#A9000E"
 			})
 		)
-		var i = 0;
-		for (i = 0; i++ <= 5;)
-			STAGE.push(
-				new Obstacle({
-					cFrame: {
-						position: V2(parent.cFrame.position.x, parent.cFrame.position.y),
-						rotation: 0,
-					},
-					size: V2(5,5),
-					gravity: 0.1,
-					collision: true,
-					canCollide: false,
-					velocity: V2((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10),
-					friction: 0.001,
-					color: "#A9000E",
-				})
-			)
+        this.blood(Math.random() * 8);
 		this.destroy();
+        UIkills++;
+        
+        
+        var dieSound = new Audio(parent.randomSound);
+        dieSound.play();
 	}
 	
 	parent.takeHealth = function( amount ) {
